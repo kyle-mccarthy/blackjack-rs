@@ -50,28 +50,23 @@ pub trait WithHandValue {
                 .map(|card| Self::rank_value(card.rank))
                 .fold(HandValue::V(0), |curr, val| match (curr, val) {
                     (HandValue::V(acc), CardValue::Single(v)) => {
-                        self.get_combination_value(vec![acc + v])
+                        self.derive_value(vec![acc + v])
                     }
                     (HandValue::V(acc), CardValue::Ace(v1, v2)) => {
-                        self.get_combination_value(vec![acc + v1, acc + v2])
+                        self.derive_value(vec![acc + v1, acc + v2])
                     }
                     (HandValue::Ace(acc1, acc2), CardValue::Single(v)) => {
-                        self.get_combination_value(vec![acc1 + v, acc2 + v])
+                        self.derive_value(vec![acc1 + v, acc2 + v])
                     }
                     (HandValue::Ace(acc1, acc2), CardValue::Ace(v1, v2)) => self
-                        .get_combination_value(vec![
-                            acc1 + v1,
-                            acc1 + v2,
-                            acc2 + v1,
-                            acc2 + v2,
-                        ]),
+                        .derive_value(vec![acc1 + v1, acc1 + v2, acc2 + v1, acc2 + v2]),
                     (HandValue::Bust(n), _) => HandValue::Bust(n),
                     _ => unreachable!(""),
                 }),
         )
     }
 
-    fn get_combination_value(&self, mut values: Vec<u8>) -> HandValue {
+    fn derive_value(&self, mut values: Vec<u8>) -> HandValue {
         values.sort_unstable();
         values.dedup();
 
@@ -111,13 +106,6 @@ pub trait WithHandValue {
             Some(HandValue::Bust(_)) => true,
             _ => false,
         }
-    }
-}
-
-pub trait PlayerHandValue: WithHandValue {
-    fn can_split(&self) -> bool {
-        let cards = self.get_cards();
-        cards.len() == 2 && cards.get(0) == cards.get(1)
     }
 }
 
