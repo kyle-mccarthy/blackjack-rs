@@ -27,7 +27,7 @@ impl Bankroll {
                 self.balance = next_value;
                 Ok(next_value)
             }
-            None => Err("Insufficent funds"),
+            None => Err("Insufficient funds"),
         }
     }
 
@@ -92,5 +92,4 @@ mod tests {
         assert!(result.is_err());
         assert_eq!(br.get_bankroll(), 100);
     }
-
 }
