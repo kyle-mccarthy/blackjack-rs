@@ -24,11 +24,13 @@ impl<'h, 'p: 'h> Player<'h, 'p> {
         }
     }
 
+    pub fn get_name(&self) -> &'p str {
+        self.name
+    }
+
     pub fn get_current_hand(&self) -> Option<&'h Hand> {
         self.hands.get(self.current_hand)
     }
-
-    pub fn a(&self) {}
 
     pub fn push_card_to_current_hand(&mut self, card: &'h Card) -> Result<(), Error> {
         if let Some(hand) = self.hands.get_mut(self.current_hand) {

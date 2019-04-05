@@ -15,6 +15,10 @@ impl<'h> Hand<'h> {
         Default::default()
     }
 
+    pub fn with_cards(cards: Vec<&'h Card>) -> Hand<'h> {
+        Hand { cards }
+    }
+
     pub fn add_card(&mut self, card: &'h Card) {
         self.cards.push(card)
     }
