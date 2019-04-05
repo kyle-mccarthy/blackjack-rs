@@ -1,0 +1,9 @@
+[package]
+name = "rust"
+version = "0.1.0"
+authors = ["Kyle McCarthy <km@kylemccarthy.io"]
+edition = "2018"
+
+[dependencies]
+rand = "0.6.5"
+failure = "0.1.5"
