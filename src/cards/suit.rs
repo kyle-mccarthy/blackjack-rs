@@ -21,7 +21,8 @@ impl Suit {
     }
 
     pub fn iter() -> Iter<'static, Suit> {
-        static SUITS: [Suit; 4] = [Suit::Spade, Suit::Heart, Suit::Diamond, Suit::Club];
+        static SUITS: [Suit; 4] =
+            [Suit::Spade, Suit::Heart, Suit::Diamond, Suit::Club];
         SUITS.iter()
     }
 }

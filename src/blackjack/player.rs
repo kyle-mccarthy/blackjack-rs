@@ -32,7 +32,10 @@ impl<'h, 'p: 'h> Player<'h, 'p> {
         self.hands.get(self.current_hand)
     }
 
-    pub fn push_card_to_current_hand(&mut self, card: &'h Card) -> Result<(), Error> {
+    pub fn push_card_to_current_hand(
+        &mut self,
+        card: &'h Card,
+    ) -> Result<(), Error> {
         if let Some(hand) = self.hands.get_mut(self.current_hand) {
             hand.add_card(card);
             return Ok(());

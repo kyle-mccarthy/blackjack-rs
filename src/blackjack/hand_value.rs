@@ -58,8 +58,14 @@ pub trait WithHandValue {
                     (HandValue::Ace(acc1, acc2), CardValue::Single(v)) => {
                         self.derive_value(vec![acc1 + v, acc2 + v])
                     }
-                    (HandValue::Ace(acc1, acc2), CardValue::Ace(v1, v2)) => self
-                        .derive_value(vec![acc1 + v1, acc1 + v2, acc2 + v1, acc2 + v2]),
+                    (HandValue::Ace(acc1, acc2), CardValue::Ace(v1, v2)) => {
+                        self.derive_value(vec![
+                            acc1 + v1,
+                            acc1 + v2,
+                            acc2 + v1,
+                            acc2 + v2,
+                        ])
+                    }
                     (HandValue::Bust(n), _) => HandValue::Bust(n),
                     _ => unreachable!(""),
                 }),
@@ -71,9 +77,11 @@ pub trait WithHandValue {
         values.dedup();
 
         let less_than_21 = values.clone();
-        let less_than_21: Vec<&u8> = less_than_21.iter().filter(|v| **v <= 21).collect();
+        let less_than_21: Vec<&u8> =
+            less_than_21.iter().filter(|v| **v <= 21).collect();
 
-        if let (Some(n1), Some(n2)) = (less_than_21.get(0), less_than_21.get(1)) {
+        if let (Some(n1), Some(n2)) = (less_than_21.get(0), less_than_21.get(1))
+        {
             return HandValue::Ace(**n1, **n2);
         }
 
