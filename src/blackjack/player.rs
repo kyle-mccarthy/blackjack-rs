@@ -1,25 +1,40 @@
-use std::rc::Rc;
-
 use failure::{format_err, Error};
 
-use crate::blackjack::hand_value::PlayerHandValue;
+use crate::blackjack::blackjack_hand::BlackjackHand;
 use crate::cards::bankroll::Bankroll;
 use crate::cards::card::Card;
-use crate::cards::hand::Hand;
+
+#[derive(PartialEq, Clone)]
+pub enum PlayerType {
+    Player,
+    Dealer,
+}
 
 pub struct Player<'h, 'p: 'h> {
     bankroll: Bankroll,
-    hands: Vec<Hand<'h>>,
+    hands: Vec<BlackjackHand<'h>>,
     current_hand: usize,
     name: &'p str,
+    player_type: PlayerType,
 }
 
 impl<'h, 'p: 'h> Player<'h, 'p> {
     pub fn new(name: &'p str) -> Player<'h, 'p> {
         Player {
             bankroll: Bankroll::new(),
-            hands: vec![Hand::new()],
+            hands: vec![BlackjackHand::new(PlayerType::Player)],
             current_hand: 0,
+            player_type: PlayerType::Player,
+            name,
+        }
+    }
+
+    pub fn new_dealer(name: &'p str) -> Player<'h, 'p> {
+        Player {
+            bankroll: Bankroll::new(),
+            hands: vec![BlackjackHand::new(PlayerType::Dealer)],
+            current_hand: 0,
+            player_type: PlayerType::Dealer,
             name,
         }
     }
@@ -28,7 +43,7 @@ impl<'h, 'p: 'h> Player<'h, 'p> {
         self.name
     }
 
-    pub fn get_current_hand(&self) -> Option<&'h Hand> {
+    pub fn get_current_hand(&self) -> Option<&'h BlackjackHand> {
         self.hands.get(self.current_hand)
     }
 
@@ -41,6 +56,14 @@ impl<'h, 'p: 'h> Player<'h, 'p> {
             return Ok(());
         }
         Err(format_err!("Could not add card"))
+    }
+
+    pub fn get_available_funds(&self) -> u32 {
+        self.bankroll.get_bankroll()
+    }
+
+    pub fn get_player_type(&self) -> &PlayerType {
+        &self.player_type
     }
 }
 

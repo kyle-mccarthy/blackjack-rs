@@ -1,7 +1,3 @@
-use std::cmp::{max, min};
-
-use failure::{format_err, Error};
-
 use crate::cards::card::Card;
 use crate::cards::hand::Hand;
 use crate::cards::rank::Rank;
@@ -117,17 +113,17 @@ pub trait WithHandValue {
     }
 }
 
-impl<'h> WithHandValue for Hand<'h> {
-    fn get_cards(&self) -> &Vec<&Card> {
-        self.get_cards()
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use crate::cards::suit::Suit;
 
     use super::*;
+
+    impl<'h> WithHandValue for Hand<'h> {
+        fn get_cards(&self) -> &Vec<&Card> {
+            self.get_cards()
+        }
+    }
 
     #[test]
     fn test_card_values_single_single() {
@@ -238,10 +234,36 @@ mod tests {
     }
 
     #[test]
-    fn test_emptyis_none() {
-        let mut hand = Hand::new();
+    fn test_hand_value_ace_tuple_low_first_high_second() {
+        let card1 = Card::from(Suit::Club, Rank::Eight);
+        let card2 = Card::from(Suit::Club, Rank::Ace);
 
-        let val = hand.get_value();
+        let mut hand = Hand::with_cards(vec![&card1, &card2]);
+        assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
+
+        hand.reset_cards();
+
+        let mut hand = Hand::with_cards(vec![&card2, &card1]);
+        assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
+
+        hand.reset_cards();
+
+        let mut hand = Hand::new();
+        hand.add_card(&card1);
+        hand.add_card(&card2);
+        assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
+
+        hand.reset_cards();
+
+        let mut hand = Hand::new();
+        hand.add_card(&card2);
+        hand.add_card(&card1);
+        assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
+    }
+
+    #[test]
+    fn test_empty_is_none() {
+        let hand = Hand::new();
 
         assert!(hand.get_value().is_none());
     }

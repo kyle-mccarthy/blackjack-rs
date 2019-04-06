@@ -1,5 +1,6 @@
 use crate::cards::card::Card;
 
+#[derive(Clone)]
 pub struct Hand<'h> {
     cards: Vec<&'h Card>,
 }
@@ -33,5 +34,30 @@ impl<'h> Hand<'h> {
 
     pub fn get_card_count(&self) -> usize {
         self.cards.len()
+    }
+
+    pub fn add_cards(&mut self, cards: Vec<&'h Card>) {
+        self.cards.extend(cards)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::cards::rank::Rank;
+    use crate::cards::suit::Suit;
+
+    use super::*;
+
+    #[test]
+    fn it_does_reset() {
+        let card = Card::from(Suit::Club, Rank::Ace);
+
+        let mut hand = Hand::with_cards(vec![&card]);
+
+        assert_eq!(hand.get_card_count(), 1);
+
+        hand.reset_cards();
+
+        assert_eq!(hand.get_card_count(), 0);
     }
 }
