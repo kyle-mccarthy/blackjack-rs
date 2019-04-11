@@ -1,9 +1,10 @@
 use rand::seq::SliceRandom;
 
 use crate::cards::card::Card;
+use std::sync::Arc;
 
 pub trait Shuffleable {
-    fn get_cards(&mut self) -> &mut Vec<Card>;
+    fn get_cards(&mut self) -> &mut Vec<Arc<Card>>;
 
     fn shuffle(&mut self) {
         self.shuffle_rounds(2);

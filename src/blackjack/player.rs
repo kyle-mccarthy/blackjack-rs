@@ -3,6 +3,8 @@ use failure::{format_err, Error};
 use crate::blackjack::blackjack_hand::BlackjackHand;
 use crate::cards::bankroll::Bankroll;
 use crate::cards::card::Card;
+use std::sync::Arc;
+use uuid::Uuid;
 
 #[derive(PartialEq, Clone)]
 pub enum PlayerType {
@@ -10,17 +12,19 @@ pub enum PlayerType {
     Dealer,
 }
 
-pub struct Player<'h, 'p: 'h> {
+pub struct Player {
+    id: Uuid,
     bankroll: Bankroll,
-    hands: Vec<BlackjackHand<'h>>,
+    hands: Vec<BlackjackHand>,
     current_hand: usize,
-    name: &'p str,
+    name: String,
     player_type: PlayerType,
 }
 
-impl<'h, 'p: 'h> Player<'h, 'p> {
-    pub fn new(name: &'p str) -> Player<'h, 'p> {
+impl Player {
+    pub fn new(name: String) -> Player {
         Player {
+            id: Uuid::new_v4(),
             bankroll: Bankroll::new(),
             hands: vec![BlackjackHand::new(PlayerType::Player)],
             current_hand: 0,
@@ -29,8 +33,9 @@ impl<'h, 'p: 'h> Player<'h, 'p> {
         }
     }
 
-    pub fn new_dealer(name: &'p str) -> Player<'h, 'p> {
+    pub fn new_dealer(name: String) -> Player {
         Player {
+            id: Uuid::new_v4(),
             bankroll: Bankroll::new(),
             hands: vec![BlackjackHand::new(PlayerType::Dealer)],
             current_hand: 0,
@@ -39,17 +44,21 @@ impl<'h, 'p: 'h> Player<'h, 'p> {
         }
     }
 
-    pub fn get_name(&self) -> &'p str {
-        self.name
+    pub fn get_id(&self) -> Uuid {
+        self.id
     }
 
-    pub fn get_current_hand(&self) -> Option<&'h BlackjackHand> {
+    pub fn get_name(&self) -> &String {
+        &self.name
+    }
+
+    pub fn get_current_hand(&self) -> Option<&BlackjackHand> {
         self.hands.get(self.current_hand)
     }
 
     pub fn push_card_to_current_hand(
         &mut self,
-        card: &'h Card,
+        card: Arc<Card>,
     ) -> Result<(), Error> {
         if let Some(hand) = self.hands.get_mut(self.current_hand) {
             hand.add_card(card);
@@ -77,13 +86,11 @@ mod tests {
 
     #[test]
     fn it_does_push_cards_to_curr_hand() {
-        let mut player = Player::new("Test");
-        let card = Card {
-            suit: Suit::Spade,
-            rank: Rank::King,
-        };
+        let mut player = Player::new(String::from("Test"));
 
-        assert!(player.push_card_to_current_hand(&card).is_ok());
+        let card = Arc::new(Card::from(Suit::Spade, Rank::King));
+
+        assert!(player.push_card_to_current_hand(card.clone()).is_ok());
 
         let hand = player.get_current_hand();
 
@@ -99,7 +106,7 @@ mod tests {
 
         assert!(card_from_hand.is_some());
 
-        let card_from_hand = **card_from_hand.unwrap();
+        let card_from_hand = card_from_hand.unwrap().clone();
 
         assert_eq!(card, card_from_hand);
     }

@@ -1,30 +1,37 @@
+use std::rc::Rc;
+
 use crate::cards::card::Card;
+use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct Hand<'h> {
-    cards: Vec<&'h Card>,
+pub struct Hand {
+    cards: Vec<Arc<Card>>,
 }
 
-impl<'h> Default for Hand<'h> {
-    fn default() -> Hand<'h> {
-        Hand { cards: vec![] }
+impl Default for Hand {
+    fn default() -> Hand {
+        Hand {
+            cards: vec![],
+        }
     }
 }
 
-impl<'h> Hand<'h> {
-    pub fn new() -> Hand<'h> {
+impl Hand {
+    pub fn new() -> Hand {
         Default::default()
     }
 
-    pub fn with_cards(cards: Vec<&'h Card>) -> Hand<'h> {
-        Hand { cards }
+    pub fn with_cards(cards: Vec<Arc<Card>>) -> Hand {
+        Hand {
+            cards,
+        }
     }
 
-    pub fn add_card(&mut self, card: &'h Card) {
+    pub fn add_card(&mut self, card: Arc<Card>) {
         self.cards.push(card)
     }
 
-    pub fn get_cards(&self) -> &Vec<&'h Card> {
+    pub fn get_cards(&self) -> &Vec<Arc<Card>> {
         &self.cards
     }
 
@@ -36,7 +43,7 @@ impl<'h> Hand<'h> {
         self.cards.len()
     }
 
-    pub fn add_cards(&mut self, cards: Vec<&'h Card>) {
+    pub fn add_cards(&mut self, cards: Vec<Arc<Card>>) {
         self.cards.extend(cards)
     }
 }
@@ -50,9 +57,9 @@ mod tests {
 
     #[test]
     fn it_does_reset() {
-        let card = Card::from(Suit::Club, Rank::Ace);
+        let card = Arc::new(Card::from(Suit::Club, Rank::Ace));
 
-        let mut hand = Hand::with_cards(vec![&card]);
+        let mut hand = Hand::with_cards(vec![card]);
 
         assert_eq!(hand.get_card_count(), 1);
 

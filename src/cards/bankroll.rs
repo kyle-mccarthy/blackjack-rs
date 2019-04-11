@@ -1,10 +1,13 @@
+#[derive(PartialEq)]
 pub struct Bankroll {
     balance: u32,
 }
 
 impl Default for Bankroll {
     fn default() -> Bankroll {
-        Bankroll { balance: 0 }
+        Bankroll {
+            balance: 0,
+        }
     }
 }
 

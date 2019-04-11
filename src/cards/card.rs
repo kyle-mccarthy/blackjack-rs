@@ -39,6 +39,9 @@ impl Debug for Card {
 
 impl Card {
     pub fn from(suit: Suit, rank: Rank) -> Card {
-        Card { suit, rank }
+        Card {
+            suit,
+            rank,
+        }
     }
 }

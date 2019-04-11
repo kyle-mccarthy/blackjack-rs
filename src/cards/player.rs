@@ -5,7 +5,9 @@ pub struct Player {
 
 impl Default for Player {
     fn default() -> Player {
-        Player { name: None }
+        Player {
+            name: None,
+        }
     }
 }
 
@@ -15,7 +17,9 @@ impl Player {
     }
 
     pub fn new_with_name(name: String) -> Player {
-        Player { name: Some(name) }
+        Player {
+            name: Some(name),
+        }
     }
 
     pub fn get_name(&self) -> &Option<String> {

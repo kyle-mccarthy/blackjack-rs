@@ -1,4 +1,11 @@
-pub mod blackjack;
-pub mod cards;
+mod blackjack;
+mod cards;
 
-fn main() {}
+#[macro_use]
+extern crate log;
+
+use blackjack::ui::start_ui;
+
+fn main() {
+    start_ui();
+}

@@ -1,6 +1,7 @@
 use crate::cards::card::Card;
 use crate::cards::hand::Hand;
 use crate::cards::rank::Rank;
+use std::sync::Arc;
 
 pub enum CardValue {
     Single(u8),
@@ -15,7 +16,7 @@ pub enum HandValue {
 }
 
 pub trait WithHandValue {
-    fn get_cards(&self) -> &Vec<&Card>;
+    fn get_cards(&self) -> &Vec<Arc<Card>>;
 
     fn rank_value(rank: Rank) -> CardValue {
         match rank {
@@ -118,21 +119,22 @@ mod tests {
     use crate::cards::suit::Suit;
 
     use super::*;
+    use std::sync::Arc;
 
-    impl<'h> WithHandValue for Hand<'h> {
-        fn get_cards(&self) -> &Vec<&Card> {
+    impl WithHandValue for Hand {
+        fn get_cards(&self) -> &Vec<Arc<Card>> {
             self.get_cards()
         }
     }
 
     #[test]
     fn test_card_values_single_single() {
-        let card1 = Card::from(Suit::Club, Rank::Three);
-        let card2 = Card::from(Suit::Club, Rank::Two);
+        let card1 = Arc::new(Card::from(Suit::Club, Rank::Three));
+        let card2 = Arc::from(Card::from(Suit::Club, Rank::Two));
 
         let mut hand = Hand::new();
-        hand.add_card(&card1);
-        hand.add_card(&card2);
+        hand.add_card(card1);
+        hand.add_card(card2);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::V(5));
     }
@@ -141,11 +143,11 @@ mod tests {
     fn test_card_values_single_ace() {
         let mut hand = Hand::new();
 
-        let card1 = Card::from(Suit::Club, Rank::Four);
-        let card2 = Card::from(Suit::Club, Rank::Ace);
+        let card1 = Arc::from(Card::from(Suit::Club, Rank::Four));
+        let card2 = Arc::from(Card::from(Suit::Club, Rank::Ace));
 
-        hand.add_card(&card1);
-        hand.add_card(&card2);
+        hand.add_card(card1);
+        hand.add_card(card2);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(5, 15));
     }
@@ -154,11 +156,11 @@ mod tests {
     fn test_card_values_ace_single() {
         let mut hand = Hand::new();
 
-        let card1 = Card::from(Suit::Club, Rank::Six);
-        let card2 = Card::from(Suit::Club, Rank::Ace);
+        let card1 = Arc::from(Card::from(Suit::Club, Rank::Six));
+        let card2 = Arc::from(Card::from(Suit::Club, Rank::Ace));
 
-        hand.add_card(&card2);
-        hand.add_card(&card1);
+        hand.add_card(card2);
+        hand.add_card(card1);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(7, 17));
     }
@@ -167,17 +169,17 @@ mod tests {
     fn test_card_values_ace_ace() {
         let mut hand = Hand::new();
 
-        let card1 = Card::from(Suit::Club, Rank::Ace);
-        let card2 = Card::from(Suit::Club, Rank::Ace);
+        let card1 = Arc::from(Card::from(Suit::Club, Rank::Ace));
+        let card2 = Arc::from(Card::from(Suit::Club, Rank::Ace));
 
-        hand.add_card(&card2);
-        hand.add_card(&card1);
+        hand.add_card(card2);
+        hand.add_card(card1);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(2, 12));
 
-        let card3 = Card::from(Suit::Club, Rank::Three);
+        let card3 = Arc::from(Card::from(Suit::Club, Rank::Three));
 
-        hand.add_card(&card3);
+        hand.add_card(card3);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(5, 15));
     }
@@ -186,26 +188,26 @@ mod tests {
     fn test_reduces_bust_with_ace_to_single_card() {
         let mut hand = Hand::new();
 
-        let card1 = Card::from(Suit::Club, Rank::Ace);
-        let card2 = Card::from(Suit::Club, Rank::Eight);
+        let card1 = Arc::from(Card::from(Suit::Club, Rank::Ace));
+        let card2 = Arc::from(Card::from(Suit::Club, Rank::Eight));
 
-        hand.add_card(&card2);
-        hand.add_card(&card1);
+        hand.add_card(card2);
+        hand.add_card(card1);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
 
-        let card3 = Card::from(Suit::Club, Rank::Ace);
+        let card3 = Arc::from(Card::from(Suit::Club, Rank::Ace));
 
-        hand.add_card(&card3);
+        hand.add_card(card3);
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(10, 20));
 
-        let card4 = Card::from(Suit::Club, Rank::Four);
-        hand.add_card(&card4);
+        let card4 = Arc::from(Card::from(Suit::Club, Rank::Four));
+        hand.add_card(card4);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::V(14));
 
-        let card5 = Card::from(Suit::Club, Rank::Ace);
-        hand.add_card(&card5);
+        let card5 = Arc::from(Card::from(Suit::Club, Rank::Ace));
+        hand.add_card(card5);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::V(15));
     }
@@ -214,50 +216,50 @@ mod tests {
     fn test_can_bust() {
         let mut hand = Hand::new();
 
-        let card1 = Card::from(Suit::Club, Rank::Ten);
-        let card2 = Card::from(Suit::Club, Rank::Eight);
-        let card3 = Card::from(Suit::Club, Rank::Ace);
-        let card4 = Card::from(Suit::Club, Rank::Five);
+        let card1 = Arc::from(Card::from(Suit::Club, Rank::Ten));
+        let card2 = Arc::from(Card::from(Suit::Club, Rank::Eight));
+        let card3 = Arc::from(Card::from(Suit::Club, Rank::Ace));
+        let card4 = Arc::from(Card::from(Suit::Club, Rank::Five));
 
-        hand.add_card(&card1);
-        hand.add_card(&card2);
+        hand.add_card(card1);
+        hand.add_card(card2);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::V(18));
 
-        hand.add_card(&card3);
+        hand.add_card(card3);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::V(19));
 
-        hand.add_card(&card4);
+        hand.add_card(card4);
 
         assert_eq!(hand.get_value().unwrap(), HandValue::Bust(24));
     }
 
     #[test]
     fn test_hand_value_ace_tuple_low_first_high_second() {
-        let card1 = Card::from(Suit::Club, Rank::Eight);
-        let card2 = Card::from(Suit::Club, Rank::Ace);
+        let card1 = Arc::from(Card::from(Suit::Club, Rank::Eight));
+        let card2 = Arc::from(Card::from(Suit::Club, Rank::Ace));
 
-        let mut hand = Hand::with_cards(vec![&card1, &card2]);
+        let mut hand = Hand::with_cards(vec![card1.clone(), card2.clone()]);
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
 
         hand.reset_cards();
 
-        let mut hand = Hand::with_cards(vec![&card2, &card1]);
-        assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
-
-        hand.reset_cards();
-
-        let mut hand = Hand::new();
-        hand.add_card(&card1);
-        hand.add_card(&card2);
+        let mut hand = Hand::with_cards(vec![card1.clone(), card2.clone()]);
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
 
         hand.reset_cards();
 
         let mut hand = Hand::new();
-        hand.add_card(&card2);
-        hand.add_card(&card1);
+        hand.add_card(card1.clone());
+        hand.add_card(card2.clone());
+        assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
+
+        hand.reset_cards();
+
+        let mut hand = Hand::new();
+        hand.add_card(card2.clone());
+        hand.add_card(card1.clone());
         assert_eq!(hand.get_value().unwrap(), HandValue::Ace(9, 19));
     }
 
