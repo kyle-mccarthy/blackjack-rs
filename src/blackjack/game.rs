@@ -1,7 +1,7 @@
 use std::sync::{Arc, RwLock};
 
-use crossbeam_channel::{Receiver, Sender, unbounded};
-use failure::{Error, format_err};
+use crossbeam_channel::{unbounded, Receiver, Sender};
+use failure::{format_err, Error};
 
 use crate::blackjack::game::lifecycle::{Lifecycle, Phase};
 use crate::blackjack::game::state::State;
@@ -26,13 +26,7 @@ impl<M> Channel<M> {
     }
 }
 
-//
-//  |->start->shuffle->add_players->announce(BETTING)->PHASE_END(BETTING - TO or all bet)
-//  |
-//  |
-//  |
-//
-
+// @todo
 pub enum LifecycleMessage {
     StartPhase(Phase),
     EndPhase(Phase),
@@ -43,11 +37,13 @@ pub enum LifecycleMessage {
 pub enum Action {
     AddPlayer(Player),
     CreateAndAddPlayer(String),
+    AddFundsToPlayerBankroll(Arc<RwLock<Player>>, u32),
 }
 
-
+// events sent to the UI
 pub enum Event {
     PlayerAdded(Result<Arc<RwLock<Player>>, Error>),
+    SetPlayerBankroll(u32),
 }
 
 pub struct Channels {
@@ -118,6 +114,13 @@ impl<'s> Game<'s> {
                 let player = Player::new(name);
                 self.add_player(player);
             }
+            Action::AddFundsToPlayerBankroll(player, funds) => {
+                let mut player = player.write().unwrap();
+                player.add_funds(funds);
+                self.emit(Event::SetPlayerBankroll(
+                    player.get_available_funds(),
+                ));
+            }
         }
     }
 
@@ -130,7 +133,8 @@ impl<'s> Game<'s> {
             self.channels
                 .events
                 .tx
-                .send(Event::PlayerAdded(Ok(player))).unwrap();
+                .send(Event::PlayerAdded(Ok(player)))
+                .unwrap();
         }
     }
 

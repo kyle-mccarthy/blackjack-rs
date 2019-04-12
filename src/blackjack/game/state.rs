@@ -1,7 +1,7 @@
 use core::borrow::Borrow;
 use std::sync::{Arc, RwLock};
 
-use failure::{Error, format_err};
+use failure::{format_err, Error};
 use uuid::Uuid;
 
 use crate::blackjack::player::Player;
@@ -65,7 +65,10 @@ impl<'r> State<'r> {
         }
     }
 
-    pub fn get_player_by_id(&self, player_id: Uuid) -> Option<Arc<RwLock<Player>>> {
+    pub fn get_player_by_id(
+        &self,
+        player_id: Uuid,
+    ) -> Option<Arc<RwLock<Player>>> {
         if let Some(position) = self.get_player_position_from_id(player_id) {
             if let Some(player) = self.players.get(position) {
                 return Some(player.to_owned().clone());
@@ -75,8 +78,8 @@ impl<'r> State<'r> {
     }
 
     fn get_player_position_from_id(&self, player_id: Uuid) -> Option<usize> {
-        self.players.iter().position(|p|
-            p.read().unwrap().get_id() == player_id
-        )
+        self.players
+            .iter()
+            .position(|p| p.read().unwrap().get_id() == player_id)
     }
 }

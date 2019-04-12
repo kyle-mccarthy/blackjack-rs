@@ -1,10 +1,11 @@
+use std::sync::Arc;
+
 use failure::{format_err, Error};
+use uuid::Uuid;
 
 use crate::blackjack::blackjack_hand::BlackjackHand;
 use crate::cards::bankroll::Bankroll;
 use crate::cards::card::Card;
-use std::sync::Arc;
-use uuid::Uuid;
 
 #[derive(PartialEq, Clone)]
 pub enum PlayerType {
@@ -73,6 +74,10 @@ impl Player {
 
     pub fn get_player_type(&self) -> &PlayerType {
         &self.player_type
+    }
+
+    pub fn add_funds(&mut self, funds: u32) {
+        self.bankroll.add_funds(funds);
     }
 }
 

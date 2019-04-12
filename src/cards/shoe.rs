@@ -168,24 +168,24 @@ mod tests {
 
     #[test]
     fn should_get_cards_in_play() {
-//        let mut shoe = Shoe::with_decks(1);
-//
-//        shoe.start_round();
-//
-//        let mut taken_cards: HashSet<Rc<Card>> = HashSet::new();
-//        let card1 = shoe.take_card().unwrap();
-//        let card2 = shoe.take_card().unwrap();
-//        let card3 = shoe.take_card().unwrap();
-//        taken_cards.insert(card1);
-//        taken_cards.insert(card2);
-//        taken_cards.insert(card3);
-//
-//        let in_play_cards = shoe.get_cards_in_play().unwrap();
-//
-//        assert!(taken_cards.len().eq(&in_play_cards.iter().len()));
-//
-//        for card in in_play_cards {
-//            assert!(taken_cards.contains(card));
-//        }
+        //        let mut shoe = Shoe::with_decks(1);
+        //
+        //        shoe.start_round();
+        //
+        //        let mut taken_cards: HashSet<Rc<Card>> = HashSet::new();
+        //        let card1 = shoe.take_card().unwrap();
+        //        let card2 = shoe.take_card().unwrap();
+        //        let card3 = shoe.take_card().unwrap();
+        //        taken_cards.insert(card1);
+        //        taken_cards.insert(card2);
+        //        taken_cards.insert(card3);
+        //
+        //        let in_play_cards = shoe.get_cards_in_play().unwrap();
+        //
+        //        assert!(taken_cards.len().eq(&in_play_cards.iter().len()));
+        //
+        //        for card in in_play_cards {
+        //            assert!(taken_cards.contains(card));
+        //        }
     }
 }

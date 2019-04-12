@@ -1,27 +1,29 @@
-use std::sync::Arc;
 use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering::SeqCst;
+use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 use std::time::Duration;
 
 use crossbeam_channel::{Receiver, Sender};
-use cursive::Cursive;
 use cursive::event::Event as CursiveEvent;
 use cursive::logger::init;
+use cursive::view::Selector;
+use cursive::Cursive;
+use log::LevelFilter;
 
 use crate::blackjack::game::{Action, Event, Game};
 
+mod containers;
 mod handlers;
 mod utils;
-mod player_container;
+mod views;
 
 pub struct Ui {
     backend: Cursive,
     rx: Receiver<Event>,
     tx: Sender<Action>,
 }
-
 
 impl Ui {
     pub fn new(tx: Sender<Action>, rx: Receiver<Event>) -> Ui {
@@ -33,8 +35,10 @@ impl Ui {
     }
 
     pub fn attach_handlers(&mut self) {
-        self.backend
-            .add_global_callback(CursiveEvent::Char('?'), Cursive::toggle_debug_console);
+        self.backend.add_global_callback(
+            CursiveEvent::Char('?'),
+            Cursive::toggle_debug_console,
+        );
     }
 
     pub fn run(&mut self) {
@@ -46,7 +50,14 @@ impl Ui {
             if let Ok(event) = self.rx.try_recv() {
                 match event {
                     Event::PlayerAdded(result) => {
-                        handlers::handle_player_added(&mut self.backend, self.tx.clone(), result);
+                        handlers::handle_player_added(
+                            &mut self.backend,
+                            self.tx.clone(),
+                            result,
+                        );
+                    }
+                    Event::SetPlayerBankroll(value) => {
+                        handlers::set_player_bankroll(&mut self.backend, value);
                     }
                 }
                 self.backend.refresh();
@@ -67,6 +78,8 @@ pub fn start_ui() {
     let running = Arc::new(AtomicBool::new(true));
     init();
 
+    log::set_max_level(LevelFilter::Info);
+
     thread::spawn(move || {
         let mut handles: Vec<JoinHandle<()>> = vec![];
 
@@ -83,8 +96,8 @@ pub fn start_ui() {
 
             // cursive seems to capture the stop command itself
             // when ctrl+c is triggered cursive knows that it has stopped running
-            // which exits the while loop, the setting is_running to false causes
-            // the app to exit
+            // which exits the while loop, then setting is_running to false causes
+            // the app to exit along with the ui and exits the program
             ui.run();
 
             // trigger the app to exit
@@ -105,6 +118,6 @@ pub fn start_ui() {
             handle.join().unwrap();
         }
     })
-        .join()
-        .unwrap();
+    .join()
+    .unwrap();
 }
